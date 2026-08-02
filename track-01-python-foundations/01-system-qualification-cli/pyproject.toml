@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "system-qualification-cli"
+version = "0.1.0"
+description = "A small CLI for validating system prerequisites."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+system-qualify = "system_qualification_cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

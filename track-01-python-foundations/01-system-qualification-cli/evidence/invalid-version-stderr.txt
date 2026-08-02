@@ -1,0 +1,2 @@
+usage: system-qualify [-h] [--min-python MAJOR.MINOR]
+system-qualify: error: argument --min-python: Python version must use MAJOR.MINOR format, such as 3.11.

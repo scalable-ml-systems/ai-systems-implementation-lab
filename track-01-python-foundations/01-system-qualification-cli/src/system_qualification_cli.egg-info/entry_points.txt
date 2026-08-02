@@ -1,0 +1,2 @@
+[console_scripts]
+system-qualify = system_qualification_cli.cli:main
