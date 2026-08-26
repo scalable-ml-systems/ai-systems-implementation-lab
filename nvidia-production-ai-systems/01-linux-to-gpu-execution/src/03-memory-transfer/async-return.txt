@@ -1,0 +1,20 @@
+riftuser@riftvm:~/nvidia-cuda-lab$ nvcc -O2 async_return.cu -o async_return
+
+./async_return
+
+Pageable:
+  API return time: 93.9952 ms
+  Total completion: 94.0773 ms
+
+Pinned:
+  API return time: 0.006876 ms
+  Total completion: 20.6163 ms
+
+
+I experimentally compared `cudaMemcpyAsync()` using pageable and pinned host memory.
+
+With pageable host memory, the API call took approximately **94 ms** and returned only when the transfer was nearly complete.
+
+With pinned host memory, the API returned in approximately **7 µs**, while the DMA transfer continued for about **20 ms**.
+
+This demonstrates that pinned host memory enables the host to enqueue an asynchronous transfer and continue executing while the GPU DMA engine performs the data movement.
