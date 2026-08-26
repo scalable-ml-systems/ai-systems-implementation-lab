@@ -1,0 +1,7 @@
+riftuser@riftvm:~/nvidia-baseline/src$ ./device_properties 
+GPU: Tesla V100-SXM3-32GB
+Compute capability: 7.0
+Streaming Multiprocessors: 80
+Warp size: 32
+Max threads per block: 1024
+Max threads per SM: 2048

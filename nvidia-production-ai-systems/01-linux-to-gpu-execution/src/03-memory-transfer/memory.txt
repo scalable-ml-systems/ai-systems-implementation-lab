@@ -1,0 +1,96 @@
+# Pageable vs. Pinned Memory
+
+Our current GPU-transfer benchmark uses:
+
+std::malloc()
+
+This creates ordinary pageable memory in the computer’s main memory (RAM).
+
+What “pageable” means
+Linux normally manages memory flexibly. It can move parts of an application’s memory as needed to make room for other programs or manage the system efficiently.
+
+That flexibility is useful for normal applications, but it adds work when moving large amounts of data to or from a GPU.
+
+Application data in normal RAM
+        ↓
+Linux can relocate or manage these memory pages
+        ↓
+CUDA may need an extra preparation/staging step
+        ↓
+GPU transfer begins
+
+## Why GPUs prefer pinned memory
+
+A GPU transfers data using a hardware mechanism called DMA—Direct Memory Access. DMA works best when the memory being transferred stays in a known, stable physical location during the transfer.
+
+CUDA provides special functions to allocate this stable host memory:
+
+cudaMallocHost()
+
+or
+
+cudaHostAlloc()
+
+This type of memory is called pinned, page-locked, or non-pageable memory.
+
+# Simple comparison
+
+## Pageable host memory
+
+Application buffer
+      ↓
+CUDA may prepare or stage the data
+      ↓
+Temporary pinned transfer buffer
+      ↓
+DMA transfer
+      ↓
+GPU memory
+
+Application buffer
+      ↓
+CUDA may prepare or stage the data
+      ↓
+Temporary pinned transfer buffer
+      ↓
+DMA transfer
+      ↓
+GPU memory
+
+## Pinned host memory
+
+Application buffer
+      ↓
+DMA transfer
+      ↓
+GPU memory
+
+Pinned memory can reduce transfer overhead because the GPU can transfer data more directly rather than requiring CUDA to prepare pageable memory first.
+
+Why it matters
+Pinned memory can provide two important benefits:
+
+Higher transfer throughput: host-to-GPU and GPU-to-host copies may complete faster.
+
+Asynchronous transfer capability: it enables important patterns where the CPU, GPU computation, and data transfers can overlap rather than waiting for one another.
+
+For example:
+
+text
+
+CPU prepares batch 2
+        │
+GPU transfers batch 1
+        │
+GPU computes batch 0
+This overlap is important in high-performance AI and data-processing systems.
+
+## Trade-offs
+
+Pinned memory should not be used for every allocation.
+
+text
+
+Pageable memory = flexible for Linux to manage
+Pinned memory   = faster/stabler for GPU transfers, but less flexible
+Too much pinned memory can reduce the amount of RAM Linux can freely manage and may hurt overall system performance.

@@ -1,0 +1,24 @@
+## PCIe Link
+
+The GPU reports PCIe Gen 3 x16 as both its current and maximum
+exposed link configuration. Therefore, the low pageable-memory
+host↔device bandwidth observed in the initial benchmark is not
+explained by a downtrained PCIe generation or reduced lane width.
+Further experiments will compare pinned versus pageable host memory
+and use repeated timed iterations to investigate host-side staging
+and VM-platform effects.
+
+
+PCI bus ID:          00000000:01:00.0
+Current PCIe Gen:    3
+Current PCIe width:  x16
+Maximum PCIe Gen:    3
+Maximum PCIe width:  x16
+
+| Field                    | Your value       | Meaning                                                 |
+| ------------------------ | ---------------- | ------------------------------------------------------- |
+| pci.bus_id               | 00000000:01:00.0 | Linux/PCI address identifying this GPU device           |
+| pcie.link.gen.gpucurrent | 3                | The GPU currently reports a PCIe Generation 3 link      |
+| pcie.link.width.current  | 16               | It currently has 16 active PCIe lanes: x16              |
+| pcie.link.gen.max        | 3                | The maximum link generation exposed to this VM is Gen 3 |
+| pcie.link.width.max      | 16               | The maximum available width is x16                      |

@@ -1,0 +1,28 @@
+| Size | H2D latency | H2D GB/s | D2H latency | D2H GB/s |
+|---|---:|---:|---:|---:|
+| 1 MiB | 0.609 ms | 1.723 | 2.104 ms | 0.498 |
+| 16 MiB | 8.062 ms | 2.081 | 28.226 ms | 0.594 |
+| 64 MiB | 33.344 ms | 2.013 | 82.444 ms | 0.814 |
+| 256 MiB | 127.294 ms | 2.109 | 446.042 ms | 0.602 |
+| 1 GiB | 533.177 ms | 2.014 | 1307.460 ms | 0.821 |
+
+## Findings
+
+1. Host-to-device bandwidth increased from 1.72 GB/s at 1 MiB
+   to approximately 2.0–2.1 GB/s at 16 MiB and above. This indicates
+   that small transfers are more affected by fixed transfer/setup overhead,
+   while larger transfers approach a sustained bandwidth plateau.
+
+2. Device-to-host bandwidth ranged from 0.50 to 0.82 GB/s and was
+   consistently lower than host-to-device bandwidth. At 1 GiB, D2H
+   bandwidth was 0.82 GB/s versus 2.01 GB/s for H2D.
+
+3. These measurements use pageable host memory allocated by std::malloc
+   and synchronous cudaMemcpy calls. They characterize the end-to-end
+   host↔GPU transfer path in this cloud VM, not GPU-local HBM bandwidth.
+
+4. The asymmetry and modest sustained bandwidth may be influenced by
+   pageable-memory staging, VM/virtualized transport behavior, host-memory
+   performance, CPU scheduling, or shared cloud infrastructure. Further
+   experiments with pinned host memory and repeated timed iterations are
+   required before attributing a single root cause.

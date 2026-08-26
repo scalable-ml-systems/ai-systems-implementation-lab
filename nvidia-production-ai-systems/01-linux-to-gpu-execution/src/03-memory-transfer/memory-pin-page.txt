@@ -1,0 +1,13 @@
+256 MiB Transfer Benchmark
+============================================
+
+| Host memory type | H2D time (ms) | H2D bandwidth (GB/s) | D2H time (ms) | D2H bandwidth (GB/s) |
+| ---------------- | ------------- | -------------------- | ------------- | -------------------- |
+| Pageable         | 32.967        | 8.14                 | 32.137        | 8.35                 |
+| Pinned           | 20.637        | 13.01                | 20.316        | 13.21                |
+
+Pinned host memory improved transfer bandwidth by approximately 60% in both directions:
+
+- H2D: 8.14 → 13.01 GB/s, a 59.8% increase.
+
+- D2H: 8.35 → 13.21 GB/s, a 58.2% increase.

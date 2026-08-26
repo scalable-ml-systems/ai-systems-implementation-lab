@@ -1,0 +1,29 @@
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 
+Transfer size: 0.268435 GB
+H2D: 122.91 ms, 2.18399 GB/s
+D2H: 481.792 ms, 0.55716 GB/s
+
+riftuser@riftvm:~/nvidia-baseline/src$ nvcc -O2 memory_transfer.cu -o  memory_transfer
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 
+Usage: ./memory_transfer <size-in-MiB>
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 1
+Transfer size: 0.00104858 GB
+H2D: 0.608704 ms, 1.72264 GB/s
+D2H: 2.10384 ms, 0.49841 GB/s
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 16
+Transfer size: 0.0167772 GB
+H2D: 8.0615 ms, 2.08115 GB/s
+D2H: 28.2258 ms, 0.594394 GB/s
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 64
+Transfer size: 0.0671089 GB
+H2D: 33.3439 ms, 2.01263 GB/s
+D2H: 82.4436 ms, 0.813997 GB/s
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 256
+Transfer size: 0.268435 GB
+H2D: 127.294 ms, 2.10879 GB/s
+D2H: 446.042 ms, 0.601817 GB/s
+riftuser@riftvm:~/nvidia-baseline/src$ ./memory_transfer 1024
+Transfer size: 1.07374 GB
+H2D: 533.177 ms, 2.01386 GB/s
+D2H: 1307.46 ms, 0.82124 GB/s
+riftuser@riftvm:~/nvidia-baseline/src$ 
