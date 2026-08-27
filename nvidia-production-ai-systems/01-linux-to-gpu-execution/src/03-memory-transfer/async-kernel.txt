@@ -1,0 +1,4 @@
+Launch returned:   0.006 ms
+GPU completed:   485.756 ms
+
+I measured a CUDA kernel launch returning in about 6 microseconds while the GPU workload completed roughly 486 milliseconds later. That demonstrates that kernel launch is asynchronous with respect to the host: submission and completion are separate events, and synchronization is what creates the wait.

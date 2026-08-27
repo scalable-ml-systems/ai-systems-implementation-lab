@@ -1,0 +1,105 @@
+## GPU Compute-Bound Kernel Analysis
+
+| Metric | Result |
+|---|---:|
+| Kernel time | 1.461 ms |
+| Approximate FP32 throughput | 45.93 TFLOP/s |
+
+## Where Is the Bottleneck?
+
+The pressure is now on the GPU execution resources:
+
+```text
+GPU HBM
+   │
+   │ Load x once
+   ▼
+Register
+   │
+   ├─ Multiply + add
+   ├─ Multiply + add
+   ├─ Multiply + add
+   ├─ ... × 1000
+   ▼
+Write x once
+```
+
+Unlike vector addition, the kernel reuses each value in a register rather than repeatedly loading it from HBM.
+
+## Why Is It Compute-Bound?
+
+Per element, the approximate memory traffic is:
+
+```text
+4-byte read
+4-byte write
+≈ 8 bytes
+```
+
+The approximate computation is:
+
+```text
+1000 iterations × 2 FLOPs
+≈ 2000 FLOPs
+```
+
+This gives an approximate arithmetic intensity of:
+
+\[
+\frac{2000\ \text{FLOPs}}{8\ \text{bytes}}
+\approx 250\ \text{FLOPs/byte}
+\]
+
+Compare this with vector addition:
+
+\[
+\approx 0.083\ \text{FLOPs/byte}
+\]
+
+This is a large difference. The workload now asks the GPU to perform substantial arithmetic for very little memory traffic, making it more likely to be limited by compute throughput than HBM bandwidth.
+
+## How to Improve It
+
+If profiling confirms the kernel is compute-bound, memory optimizations will have limited impact. Focus on the arithmetic execution path instead:
+
+- Use more efficient instructions or algorithms
+- Exploit fused multiply-add (FMA) instructions
+- Use Tensor Cores when the data type and operation support them
+- Use lower precision when accuracy requirements allow it
+- Reduce unnecessary computation
+- Choose kernel configurations that better utilize the GPU's execution units
+
+
+### High Arithmetic Intensity 
+
+iters 500  → 0.746 ms → 44.95 TFLOP/s
+iters 1000 → 1.461 ms → 45.93 TFLOP/s
+iters 2000 → 2.890 ms → 46.45 TFLOP/s
+
+I verified the workload was compute-bound by changing only the number of arithmetic iterations. When I doubled the arithmetic work from 500 to 1000 and then 2000 iterations, execution time scaled almost linearly, while throughput remained around 45–46 TFLOP/s. Since memory traffic stayed essentially constant, that showed arithmetic execution was controlling runtime.
+
+WHERE
+
+GPU execution units / arithmetic pipeline.
+
+WHY
+
+Very high arithmetic intensity:
+
+load once
+   ↓
+~1000–2000 arithmetic operations
+   ↓
+store once
+
+The GPU spends its time doing math rather than moving data.
+
+HOW
+
+For a real compute-bound workload, target:
+
+fewer arithmetic operations,
+more efficient kernels/instructions,
+lower precision where acceptable,
+Tensor Cores when the operation maps to them,
+better algorithmic efficiency.

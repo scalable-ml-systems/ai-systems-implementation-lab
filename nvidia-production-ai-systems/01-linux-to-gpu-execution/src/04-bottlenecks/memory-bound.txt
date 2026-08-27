@@ -1,0 +1,52 @@
+## GPU Memory-Bound Kernel Analysis
+
+| Metric | Result |
+|---|---:|
+| Kernel time | 0.864 ms |
+| Effective HBM bandwidth | ~933 GB/s |
+| Arithmetic intensity | ~0.083 FLOP/byte |
+
+## Where Is the Bottleneck?
+
+The bottleneck is inside the GPU memory path:
+
+```text
+GPU HBM
+   ↓
+Memory subsystem
+   ↓
+Streaming Multiprocessors (SMs)
+```
+
+This is **not a PCIe bottleneck**. The data is already resident in GPU memory.
+
+## Why Is It Memory-Bound?
+
+The kernel moves a large amount of data while performing very little arithmetic:
+
+```text
+12 bytes moved
+for
+1 FLOP
+```
+
+This produces very low arithmetic intensity:
+
+\[
+\text{Arithmetic Intensity} \approx 0.083\ \text{FLOP/byte}
+\]
+
+The GPU spends most of its time feeding data from HBM to the SMs rather than performing arithmetic operations.
+
+## How to Improve It
+
+The appropriate optimizations reduce HBM traffic or increase useful work performed per byte transferred:
+
+- Reuse data rather than repeatedly loading it from HBM
+- Improve memory locality and coalesced global-memory access
+- Use shared memory or cache effectively when the access pattern supports reuse
+- Reduce bytes moved, such as by using lower-precision data types where accuracy permits
+- Restructure the algorithm to perform more useful computation per byte loaded
+- Fuse compatible kernels to avoid writing intermediate results to HBM and reading them back
+
+

@@ -1,0 +1,39 @@
+# Transfer-Bound Pipeline Results
+
+| Host memory type | H2D time (ms) | Kernel time (ms) | D2H time (ms) | Total pipeline time (ms) |
+| ---------------- | ------------- | ---------------- | ------------- | ------------------------ |
+| Pageable         | 27.202        | 0.007778         | 28.388        | 55.598                   |
+| Pinned           | 20.632        | 0.011058         | 20.318        | 40.961                   |
+
+## Key observation
+ 
+The kernel takes roughly 8–11 µs, while each transfer takes approximately 20–28 ms. This pipeline is decisively transfer-bound rather than compute-bound.
+
+Pinned memory reduced total pipeline latency from 55.598 ms to 40.961 ms, an improvement of approximately 26.3%.
+
+The kernel is effectively irrelevant here. Almost all runtime is transfer time.
+
+### WHERE
+
+The bottleneck is:
+- CPU DRAM ↔ PCIe ↔ GPU HBM
+
+### WHY
+- You move hundreds of MB across PCIe to do almost no compute.
+- That means extremely low useful work per byte transferred.
+
+lots of bytes moved
++
+tiny amount of compute
+=
+transfer-bound
+
+### HOW
+The right fixes are targeted at movement:
+- keep data on the GPU longer
+- reduce H2D/D2H frequency
+- batch transfers
+- use pinned memory
+- overlap transfers with useful work where possible
+- Pinned memory reduced total time from about 55.6 ms to 41.0 ms.
+- That’s roughly a 26% reduction in total runtime, without changing the kernel at all.

@@ -1,0 +1,6 @@
+riftuser@riftvm:~/nvidia-cuda-lab$ nvcc -O2 stream_overlap.cu -o stream_overlap
+riftuser@riftvm:~/nvidia-cuda-lab$ ./stream_overlap 
+Sequential total: 433.592 ms
+Two-stream total: 233.231 ms
+
+A stream is an ordered queue. Work within one stream stays ordered, while independent streams may run concurrently if the GPU has the resources.
