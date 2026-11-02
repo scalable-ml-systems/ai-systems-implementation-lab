@@ -11,16 +11,44 @@ records = [
 
 counts = {}
 errors = {}
+latencies = {}
 
 for record in records:
     service = record["service"]
     status = record["status"]
+    latency = record["latency_ms"]
 
     counts[service] = counts.get(service, 0) + 1 
     errors.setdefault(service, 0)
     
     if status >= 400:
         errors[service] += 1
+
+    if service not in latencies:
+        latencies[service] = {
+            "count" : 0,
+            "total" : 0,
+            "min" : latency, 
+            "max" : latency
+        }
+    
+    stats = latencies[service]
+
+    stats["count"] += 1
+    stats["total"] += latency
+    stats["min"] = min(stats["min"], latency)
+    stats["max"] = max(stats["max"], latency)
+
+for service, stats in latencies.items():
+    average = stats["total"] / stats["count"]
+
+    print(
+        service,
+        "Count:", stats["count"],
+        "Min:", stats["min"],
+        "Max:", stats["max"],
+        "Average:", round(average, 2)
+    )
 
 print("Requests:", counts)
 print("Errors:", errors)
